@@ -207,8 +207,12 @@ final class Instrument {
                 at: now - 420 + Double(step)
             )
         }
-        instrument.topSpeed = 19.4
+        // Distance and moving time must be set together — the average divides
+        // one by the other, and a distance with no elapsed time behind it
+        // produces a nonsense figure.
+        instrument.topSpeed = 5.6
         instrument.distance = 4_820
+        instrument.movingTime = 4_340
         return instrument
     }
     #endif
