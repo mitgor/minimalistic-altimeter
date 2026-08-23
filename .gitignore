@@ -1,0 +1,26 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store
+
+# Tooling output
+Tools/makeicon
+Tools/*.o
+
+# Screenshots of a third-party app, kept locally as design reference only.
+# Not ours to republish.
+Reference/
