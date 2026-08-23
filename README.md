@@ -1,4 +1,4 @@
-# Minimalistic Altimeter
+# Mini Altimeter
 
 A minimal iOS altimeter. Barometric and GPS altitude side by side, ground speed
 from GNSS, on one screen, with no network at any point.
