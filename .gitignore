@@ -24,3 +24,8 @@ Tools/*.o
 # Screenshots of a third-party app, kept locally as design reference only.
 # Not ours to republish.
 Reference/
+
+# App Store Connect API private keys. Apple issues these once and they grant
+# upload and team-management rights, so they must never reach the remote.
+*.p8
+AuthKey_*
