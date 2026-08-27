@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodebuild:*)",
+      "Bash(xcrun:*)",
+      "Bash(swiftc:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(plutil:*)",
+      "Bash(/usr/libexec/PlistBuddy:*)",
+      "Bash(sips:*)",
+      "Bash(otool:*)",
+      "Bash(codesign -dv:*)",
+      "Bash(security find-identity:*)"
+    ]
+  }
+}
