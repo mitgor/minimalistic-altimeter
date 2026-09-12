@@ -7,6 +7,7 @@ import SwiftUI
 /// unanimous that a second competing focal point is what kills glanceability, so
 /// there are exactly two, separated by a rule and a lot of empty space.
 struct DashboardView: View {
+    @Environment(\.theme) private var theme
     let instrument: Instrument
 
     @State private var showingCalibration = false
@@ -17,7 +18,7 @@ struct DashboardView: View {
 
     var body: some View {
         ZStack {
-            Palette.background.ignoresSafeArea()
+            theme.background.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
                 statusRail
@@ -46,21 +47,26 @@ struct DashboardView: View {
             .padding(.top, 6)
             .padding(.bottom, 12)
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(theme.colorScheme)
         .sheet(isPresented: $showingCalibration) {
             CalibrationView(instrument: instrument)
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView(instrument: instrument)
         }
-        .onAppear { instrument.start() }
+        .onAppear {
+            instrument.start()
+            UIApplication.shared.isIdleTimerDisabled = settings.keepScreenAwake
+        }
         .onChange(of: scenePhase) { _, phase in
             // The sensors are the battery cost, so they stop the moment the app
-            // is not on screen.
+            // is not on screen — unless a trip has asked them to stay.
             if phase == .active {
                 instrument.start()
+                UIApplication.shared.isIdleTimerDisabled = settings.keepScreenAwake
             } else {
-                instrument.stop()
+                UIApplication.shared.isIdleTimerDisabled = false
+                if !instrument.tripActive { instrument.stop() }
             }
         }
     }
@@ -69,6 +75,16 @@ struct DashboardView: View {
 
     private var statusRail: some View {
         HStack(spacing: 10) {
+            Button {
+                toggleTrip()
+            } label: {
+                SourcePill(label: instrument.tripActive ? "End trip" : "Start trip", isLive: instrument.tripActive)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(instrument.tripActive
+                ? "Stops background tracking and the Live Activity"
+                : "Keeps tracking when the app is closed and shows altitude in the Dynamic Island")
+
             // Only speaks up when something is wrong. With both altitudes on
             // screen there is no source to announce here any more.
             if needsCalibration {
@@ -93,7 +109,7 @@ struct DashboardView: View {
             } label: {
                 Image(systemName: "slider.horizontal.3")
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Palette.secondary)
+                    .foregroundStyle(theme.secondary)
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
@@ -110,7 +126,7 @@ struct DashboardView: View {
 
     private var altitudeBlock: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("Altitude").captionStyle(Palette.secondary)
+            Text("Altitude").captionStyle(theme.secondary)
 
             // Side by side rather than one hero with a source switch: the two
             // sensors fail in different ways — the barometer drifts with the
@@ -133,8 +149,8 @@ struct DashboardView: View {
                     showingCalibration = true
                 } label: {
                     Text("Calibrate")
-                        .font(.detail)
-                        .foregroundStyle(Palette.accent)
+                        .font(theme.detail)
+                        .foregroundStyle(theme.accent)
                 }
                 .buttonStyle(.plain)
             }
@@ -153,8 +169,8 @@ struct DashboardView: View {
             unit: settings.altitudeUnit.symbol,
             placeholder: placeholder(for: source),
             size: 52,
-            tint: isPrimary ? Palette.primary : Palette.secondary,
-            captionTint: isPrimary ? Palette.accent : Palette.tertiary,
+            tint: isPrimary ? theme.primary : theme.secondary,
+            captionTint: isPrimary ? theme.accent : theme.tertiary,
             marked: isPrimary
         )
         .contentShape(.rect)
@@ -183,13 +199,13 @@ struct DashboardView: View {
 
         if let divergence = instrument.divergence {
             Text("\u{0394} \(Format.number(abs(unit.convert(divergence)))) \(unit.symbol)")
-                .font(.detail)
-                .foregroundStyle(abs(divergence) > 30 ? Palette.accent : Palette.tertiary)
+                .font(theme.detail)
+                .foregroundStyle(abs(divergence) > 30 ? theme.accent : theme.tertiary)
                 .accessibilityLabel("Difference between sources")
         } else if let accuracy = instrument.altitudeAccuracy {
             Text("\u{00B1} \(Format.number(unit.convert(accuracy))) \(unit.symbol)")
-                .font(.detail)
-                .foregroundStyle(Palette.tertiary)
+                .font(theme.detail)
+                .foregroundStyle(theme.tertiary)
         }
     }
 
@@ -198,13 +214,13 @@ struct DashboardView: View {
 
         // Anything under 10 cm/s is the sensor breathing, not you climbing.
         let isMoving = abs(rate) > 0.1
-        let tint = !isMoving ? Palette.tertiary : (rate > 0 ? Palette.ascending : Palette.descending)
+        let tint = !isMoving ? theme.tertiary : (rate > 0 ? theme.ascending : theme.descending)
 
         return HStack(spacing: 4) {
             Image(systemName: !isMoving ? "equal" : (rate > 0 ? "arrow.up" : "arrow.down"))
                 .font(.system(size: 10, weight: .bold))
             Text("\(Format.number(abs(settings.altitudeUnit.convert(rate)), decimals: 1)) \(settings.altitudeUnit.symbol)/s")
-                .font(.detail)
+                .font(theme.detail)
         }
         .foregroundStyle(tint)
         .contentTransition(.numericText())
@@ -216,7 +232,7 @@ struct DashboardView: View {
         AltitudeTrace(
             samples: instrument.track.samples,
             range: instrument.track.range,
-            tint: needsCalibration ? Palette.accent : Palette.secondary
+            tint: needsCalibration ? theme.accent : theme.secondary
         )
     }
 
@@ -247,9 +263,9 @@ struct DashboardView: View {
                         Image(systemName: "location.slash")
                             .font(.system(size: 11, weight: .semibold))
                         Text("Location off — enable in Settings")
-                            .font(.detail)
+                            .font(theme.detail)
                     }
-                    .foregroundStyle(Palette.accent)
+                    .foregroundStyle(theme.accent)
                 }
                 .buttonStyle(.plain)
             } else {
@@ -265,13 +281,13 @@ struct DashboardView: View {
 
                     if let heading = instrument.heading {
                         Text(heading)
-                            .foregroundStyle(Palette.secondary)
+                            .foregroundStyle(theme.secondary)
                     }
 
                     Spacer()
                 }
-                .font(.detail)
-                .foregroundStyle(Palette.tertiary)
+                .font(theme.detail)
+                .foregroundStyle(theme.tertiary)
                 .contentTransition(.numericText())
             }
         }
@@ -281,9 +297,11 @@ struct DashboardView: View {
 
     private var bottomStrip: some View {
         VStack(spacing: 16) {
-            Divider1px()
+            if theme.cellStyle == .flat {
+                Divider1px()
+            }
 
-            HStack(spacing: 0) {
+            HStack(spacing: theme.cellStyle == .flat ? 0 : 6) {
                 StatCell(
                     label: "Pressure",
                     value: pressureText
@@ -311,6 +329,15 @@ struct DashboardView: View {
     }
 
     // MARK: Actions
+
+    private func toggleTrip() {
+        if instrument.tripActive {
+            instrument.endTrip()
+        } else {
+            instrument.startTrip()
+        }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
 
     /// Picks which source the trace, climb rate and ascent totals derive from.
     private func select(_ source: AltitudeSource) {

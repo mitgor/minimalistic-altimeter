@@ -1,6 +1,6 @@
 import Foundation
 
-enum AltitudeUnit: String, CaseIterable, Identifiable, Sendable {
+enum AltitudeUnit: String, CaseIterable, Identifiable, Sendable, Codable {
     case metres, feet
 
     var id: String { rawValue }
@@ -18,7 +18,7 @@ enum AltitudeUnit: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-enum SpeedUnit: String, CaseIterable, Identifiable, Sendable {
+enum SpeedUnit: String, CaseIterable, Identifiable, Sendable, Codable {
     case kmh, mph, knots, ms
 
     var id: String { rawValue }
@@ -52,7 +52,7 @@ enum SpeedUnit: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-enum PressureUnit: String, CaseIterable, Identifiable, Sendable {
+enum PressureUnit: String, CaseIterable, Identifiable, Sendable, Codable {
     case hPa, inHg, mmHg
 
     var id: String { rawValue }

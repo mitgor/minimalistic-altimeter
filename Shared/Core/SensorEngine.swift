@@ -69,7 +69,6 @@ final class SensorEngine {
             locationManager.requestWhenInUseAuthorization()
         }
         locationManager.startUpdatingLocation()
-        locationManager.startUpdatingHeading()
     }
 
     func stop() {
@@ -77,7 +76,17 @@ final class SensorEngine {
         running = false
         altimeter.stopRelativeAltitudeUpdates()
         locationManager.stopUpdatingLocation()
-        locationManager.stopUpdatingHeading()
+    }
+
+    /// Keeps the fixes — and with them the process, and so the barometer —
+    /// coming after the app leaves the screen. Only ever on during a trip, so
+    /// the blue indicator is always something the user asked for.
+    func setBackgroundUpdates(_ enabled: Bool) {
+        locationManager.allowsBackgroundLocationUpdates = enabled
+        #if os(iOS)
+        locationManager.showsBackgroundLocationIndicator = enabled
+        locationManager.pausesLocationUpdatesAutomatically = !enabled
+        #endif
     }
 
     // MARK: Derived state

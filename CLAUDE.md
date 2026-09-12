@@ -1,12 +1,15 @@
 # Working on Mini Altimeter
 
-A barometric altimeter and GPS speedometer for iPhone. One screen, no network,
-no account. This file is what a fresh Claude session needs to be useful here
+A barometric altimeter and GPS speedometer for iPhone, with a Live Activity,
+home-screen widgets and a watch app. One screen, no network, no account. This file is what a fresh Claude session needs to be useful here
 without rediscovering it all.
 
 ## Build and run
 
-Xcode 26+, iOS 17 deployment target, no package dependencies.
+Xcode 26+, iOS 17 / watchOS 10 deployment targets, no package dependencies.
+Three targets: `Barometer` (iPhone app), `AltimeterWidgets` (widget extension
+with the Live Activity) and `Mini Altimeter Watch`. Building the app scheme
+builds and embeds the other two.
 
 ```bash
 # Build for the simulator
@@ -19,7 +22,14 @@ Fast type-check without a full build — much quicker when iterating:
 ```bash
 SDK=$(xcrun --sdk iphonesimulator --show-sdk-path)
 xcrun swiftc -typecheck -sdk "$SDK" -target arm64-apple-ios17.0-simulator \
-  -swift-version 6 -D DEBUG $(find Barometer -name '*.swift')
+  -swift-version 6 -D DEBUG $(find Barometer Shared -name '*.swift')
+
+# Widgets need the extension flag; the watch needs its own SDK
+xcrun swiftc -typecheck -sdk "$SDK" -target arm64-apple-ios17.0-simulator \
+  -swift-version 6 -D DEBUG -application-extension $(find Widgets Shared -name '*.swift')
+WSDK=$(xcrun --sdk watchsimulator --show-sdk-path)
+xcrun swiftc -typecheck -sdk "$WSDK" -target arm64-apple-watchos10.0-simulator \
+  -swift-version 6 -D DEBUG $(find Watch Shared -name '*.swift')
 ```
 
 The project is kept clean under **Swift 6 strict concurrency** as well as Swift 5.
@@ -44,6 +54,13 @@ temporarily point the app at the preview factory:
 )
 ```
 
+To screenshot a particular theme without touching Settings, pass it as a launch
+argument — `UserDefaults` reads it ahead of the stored value:
+
+```bash
+xcrun simctl launch booted com.woodenshark.barometer -theme lcd
+```
+
 Speed *can* be exercised for real:
 
 ```bash
@@ -52,16 +69,26 @@ xcrun simctl location booted start --speed=14 --distance=3 46.5197,6.6323 46.600
 
 ## Architecture
 
+`Shared/` is compiled into all three targets; everything in it must build for
+iOS, an app extension (no `UIApplication.shared`) and watchOS.
+
 | File | Holds |
 |---|---|
-| `Core/Atmosphere.swift` | ISA pressure↔altitude maths. Pure functions, no state. |
-| `Core/SensorEngine.swift` | `CMAltimeter` + `CLLocationManager`. Publishes raw readings only, no interpretation. |
-| `Core/AltitudeTrack.swift` | Rolling 15-min window. Backs the trace, vertical speed and ascent totals from one array so they cannot disagree. |
-| `Core/Instrument.swift` | Folds sensors + settings into the numbers actually shown. The view model. |
-| `Core/Settings.swift` | Preferences, mirrored to `UserDefaults`. |
-| `Design/` | Palette, type scale, readout components. |
-| `Views/` | Dashboard, calibration sheet, settings sheet. |
-| `Tools/MakeIcon.swift` | Draws the app icon with Core Graphics. Regenerate, don't edit the PNG. |
+| `Shared/Core/Atmosphere.swift` | ISA pressure↔altitude maths. Pure functions, no state. |
+| `Shared/Core/SensorEngine.swift` | `CMAltimeter` + `CLLocationManager`. Publishes raw readings only, no interpretation. Background updates are a switch, only on during a trip. |
+| `Shared/Core/AltitudeTrack.swift` | Rolling 15-min window. Backs the trace, vertical speed and ascent totals from one array so they cannot disagree. |
+| `Shared/Core/Instrument.swift` | Folds sensors + settings into the numbers actually shown. The view model. Owns the trip lifecycle. |
+| `Shared/Core/Settings.swift` | Preferences, mirrored to `UserDefaults`. |
+| `Shared/Core/Snapshot.swift` | The readings flattened for the island, widgets and watch. Saved to the App Group. |
+| `Shared/Core/TripAttributes.swift` | The Live Activity's attributes; its state is a `Snapshot`. |
+| `Shared/Design/Theme.swift` | The four themes (Glass, Phosphor, Paper, LCD) as `Theme` values in the environment. A theme is colours, typeface, trace renderer and cell chrome — never layout. |
+| `Shared/Design/Components.swift` | Readout, trace, cells. All read `@Environment(\\.theme)`. |
+| `Barometer/Views/` | Dashboard, calibration sheet, settings sheet. |
+| `Barometer/Trip/TripBroadcaster.swift` | Every 3 s: writes the snapshot, updates the Live Activity, nudges WidgetKit, sends to the watch. |
+| `Barometer/Trip/PhoneLink.swift` | `WCSession` sender. Application context only. |
+| `Widgets/` | `AltitudeWidget` (small/medium, last reading with its age) and `TripLiveActivity` (island + lock screen). Glass look only. |
+| `Watch/` | Standalone `Instrument` when the watch has a barometer, mirror of the phone's snapshot when it does not. |
+| `Tools/MakeIcon.swift` | Draws the app icon with Core Graphics. Regenerate, don't edit the PNG. The watch icon is the same dial at scale 1.14 so it fills the circular mask: `MakeIcon Watch/Assets.xcassets/AppIcon.appiconset/AppIcon.png 1.14`. |
 | `Tools/asc.swift` | Mints an App Store Connect API token. See *Distribution*. |
 
 `SensorEngine`, `Instrument` and `Settings` are all `@MainActor @Observable`.
@@ -92,6 +119,16 @@ than showing `0` — and not a dash either: at readout size a dash is a slab tha
 reads as redacted. There is no climb rate without an altitude, no `±` without a
 reading, and no average before enough moving time has accrued. Preserve this when
 adding readouts.
+
+**A trip is the only background mode.** Start trip turns on background
+location updates (the blue indicator), keeps the barometer alive through them,
+and starts the Live Activity. End trip stops all three. Outside a trip the
+sensors stop the moment the app leaves the screen, as before. This keeps the
+battery cost something the user chose.
+
+**The widget shows its age.** WidgetKit cannot be live, so the home-screen
+widget says "as of N min ago" with a relative-date `Text` that ticks without
+reloads. The app only asks for a reload when a figure actually moved.
 
 **Monospaced digits everywhere.** Proportional numerals shift sideways as digits
 change, which makes an instrument look unsteady.
@@ -163,10 +200,12 @@ These each cost real time to rediscover:
 - **Never run on real hardware.** The barometric path — the app's whole point —
   has only ever been checked against the ISA table and in the Simulator, which
   has no barometer. Calibrate against a known elevation before trusting it.
-- **The magnetometer runs for nothing.** `startUpdatingHeading()` is called but
-  no heading delegate is implemented and no heading property is read; the compass
-  point comes from the fix's `course`. Removing the two calls is a free power
-  win. (A patch for this may be sitting uncommitted in the working tree.)
+- **The watch mirror path has only been exercised in code.** Testing it needs a
+  paired watch simulator (`xcrun simctl pair <watch> <phone>`) or real hardware.
+  The App Group `group.com.woodenshark.barometer` must exist on the team; automatic
+  signing registers it on the first device build.
+- **The Live Activity uses the Glass palette regardless of theme.** The extension
+  would need the theme name in the App Group to follow it.
 - **GPS is configured for maximum power draw**: `kCLLocationAccuracyBestForNavigation`,
   `distanceFilter = kCLDistanceFilterNone`, and `keepScreenAwake` defaults on. Fine
   for an instrument you are looking at; do not market the app as battery-light

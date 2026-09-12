@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 /// Which sensor the headline altitude comes from.
-enum AltitudeSource: String, CaseIterable, Identifiable, Sendable {
+enum AltitudeSource: String, CaseIterable, Identifiable, Sendable, Codable {
     case barometric, satellite
 
     var id: String { rawValue }
@@ -40,6 +40,8 @@ final class Settings {
 
     var keepScreenAwake: Bool { didSet { store(keepScreenAwake, .keepScreenAwake) } }
 
+    var theme: AppTheme { didSet { store(theme.rawValue, .theme) } }
+
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
@@ -63,6 +65,7 @@ final class Settings {
         calibratedAt = timestamp.map(Date.init(timeIntervalSince1970:))
 
         keepScreenAwake = defaults.object(forKey: Key.keepScreenAwake.rawValue) as? Bool ?? true
+        theme = defaults.string(forKey: Key.theme.rawValue).flatMap(AppTheme.init) ?? .glass
     }
 
     /// True once the reference is old enough that the weather has probably moved on.
@@ -78,7 +81,7 @@ final class Settings {
 
     private enum Key: String {
         case altitudeUnit, speedUnit, pressureUnit, altitudeSource
-        case referencePressure, calibratedAt, keepScreenAwake
+        case referencePressure, calibratedAt, keepScreenAwake, theme
     }
 
     private func store(_ value: Any?, _ key: Key) {

@@ -10,6 +10,10 @@ import UniformTypeIdentifiers
 // rounded bars, and a length ratio between them far more extreme than an hour
 // and minute hand. The numerals and warning hatching on a real instrument are
 // left out — they turn to mush at tile size.
+//
+// Usage: MakeIcon <output.png> [scale]. The watch shows icons through a
+// circular mask that eats the corners, so it gets the same dial drawn a
+// little larger — the bezel sits just inside the circle instead of floating.
 
 let side = 1024.0
 let centre = CGPoint(x: side / 2, y: side / 2)
@@ -29,6 +33,11 @@ guard let context = CGContext(
 context.setShouldAntialias(true)
 context.setFillColor(ground)
 context.fill(CGRect(x: 0, y: 0, width: side, height: side))
+
+let scale = CommandLine.arguments.dropFirst(2).first.flatMap(Double.init) ?? 1
+context.translateBy(x: centre.x, y: centre.y)
+context.scaleBy(x: scale, y: scale)
+context.translateBy(x: -centre.x, y: -centre.y)
 
 /// Angles run clockwise from twelve o'clock, the way an instrument is read.
 func point(_ degrees: Double, _ radius: Double) -> CGPoint {

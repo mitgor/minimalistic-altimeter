@@ -5,6 +5,7 @@ import SwiftUI
 /// Three ways in, ordered by how good the answer they give is: copy the GPS,
 /// type the altitude you know you are at, or dial in a published QNH.
 struct CalibrationView: View {
+    @Environment(\.theme) private var theme
     let instrument: Instrument
     @Environment(\.dismiss) private var dismiss
 
@@ -20,7 +21,7 @@ struct CalibrationView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Palette.background.ignoresSafeArea()
+                theme.background.ignoresSafeArea()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 28) {
@@ -39,11 +40,11 @@ struct CalibrationView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
-                        .foregroundStyle(Palette.accent)
+                        .foregroundStyle(theme.accent)
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(theme.colorScheme)
         .presentationDetents([.large])
         .onAppear {
             pressureEntry = Format.number(
@@ -63,15 +64,15 @@ struct CalibrationView: View {
                     settings.pressureUnit.convert(settings.referencePressure),
                     decimals: settings.pressureUnit.fractionDigits
                 ))
-                .font(.readout(38))
-                .foregroundStyle(Palette.primary)
+                .font(theme.readout(38))
+                .foregroundStyle(theme.primary)
                 Text(settings.pressureUnit.symbol)
-                    .font(.unit(15))
-                    .foregroundStyle(Palette.secondary)
+                    .font(theme.unit(15))
+                    .foregroundStyle(theme.secondary)
             }
             Text(calibrationAge)
-                .font(.detail)
-                .foregroundStyle(settings.calibrationIsStale ? Palette.accent : Palette.tertiary)
+                .font(theme.detail)
+                .foregroundStyle(settings.calibrationIsStale ? theme.accent : theme.tertiary)
         }
     }
 
@@ -92,22 +93,22 @@ struct CalibrationView: View {
                 if instrument.calibrateFromGPS() { finish() }
             } label: {
                 Label("Use satellite altitude", systemImage: "location.fill")
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .font(theme.control)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 13)
                     // Dimming a filled accent button turns it to mud and takes
                     // the label with it. Unavailable means outlined, not faded.
                     .background(
-                        ready ? Palette.accent : Palette.surface,
-                        in: RoundedRectangle(cornerRadius: 12)
+                        ready ? theme.accent : theme.surface,
+                        in: RoundedRectangle(cornerRadius: theme.cornerRadius)
                     )
                     .overlay {
                         if !ready {
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Palette.hairline, lineWidth: 1)
+                            RoundedRectangle(cornerRadius: theme.cornerRadius)
+                                .stroke(theme.hairline, lineWidth: 1)
                         }
                     }
-                    .foregroundStyle(ready ? Color.black : Palette.tertiary)
+                    .foregroundStyle(ready ? theme.background : theme.tertiary)
             }
             .buttonStyle(.plain)
             .disabled(!ready)
@@ -127,15 +128,15 @@ struct CalibrationView: View {
                 TextField("0", text: $altitudeEntry)
                     .keyboardType(.numbersAndPunctuation)
                     .focused($focus, equals: .altitude)
-                    .font(.readout(22))
-                    .foregroundStyle(Palette.primary)
+                    .font(theme.readout(22))
+                    .foregroundStyle(theme.primary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 11)
-                    .background(Palette.surface, in: RoundedRectangle(cornerRadius: 12))
+                    .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.cornerRadius))
                     .overlay(alignment: .trailing) {
                         Text(settings.altitudeUnit.symbol)
-                            .font(.unit(14))
-                            .foregroundStyle(Palette.tertiary)
+                            .font(theme.unit(14))
+                            .foregroundStyle(theme.tertiary)
                             .padding(.trailing, 14)
                     }
 
@@ -155,8 +156,8 @@ struct CalibrationView: View {
         Card(title: "Sea-level pressure", detail: "The QNH from an airfield or weather report near you.") {
             if rejectedPressure {
                 Text("Sea-level pressure sits between 800 and 1100 hPa.")
-                    .font(.detail)
-                    .foregroundStyle(Palette.descending)
+                    .font(theme.detail)
+                    .foregroundStyle(theme.descending)
             }
 
             HStack(spacing: 10) {
@@ -164,15 +165,15 @@ struct CalibrationView: View {
                     .keyboardType(.decimalPad)
                     .focused($focus, equals: .pressure)
                     .onChange(of: pressureEntry) { _, _ in rejectedPressure = false }
-                    .font(.readout(22))
-                    .foregroundStyle(Palette.primary)
+                    .font(theme.readout(22))
+                    .foregroundStyle(theme.primary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 11)
-                    .background(Palette.surface, in: RoundedRectangle(cornerRadius: 12))
+                    .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.cornerRadius))
                     .overlay(alignment: .trailing) {
                         Text(settings.pressureUnit.symbol)
-                            .font(.unit(14))
-                            .foregroundStyle(Palette.tertiary)
+                            .font(theme.unit(14))
+                            .foregroundStyle(theme.tertiary)
                             .padding(.trailing, 14)
                     }
 
@@ -201,7 +202,7 @@ struct CalibrationView: View {
         every few hours, or whenever the weather turns.
         """)
         .font(.system(size: 13))
-        .foregroundStyle(Palette.tertiary)
+        .foregroundStyle(theme.tertiary)
         .lineSpacing(3)
     }
 
@@ -214,31 +215,33 @@ struct CalibrationView: View {
     /// The pill on a Set button. Built as the button's label so the padded
     /// rectangle is the hit region, not just the glyphs inside it.
     private struct SetLabel: View {
+        @Environment(\.theme) private var theme
         let enabled: Bool
 
         var body: some View {
             Text("Set")
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(enabled ? Palette.accent : Palette.tertiary)
+                .font(theme.control)
+                .foregroundStyle(enabled ? theme.accent : theme.tertiary)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 13)
-                .background(Palette.surface, in: RoundedRectangle(cornerRadius: 12))
+                .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.cornerRadius))
         }
     }
 
     /// A titled block. Not a boxed row — the sections are already separated by
     /// space, and a border around each would double the visual noise.
     private struct Card<Content: View>: View {
+        @Environment(\.theme) private var theme
         let title: String
         let detail: String
         @ViewBuilder let content: Content
 
         var body: some View {
             VStack(alignment: .leading, spacing: 10) {
-                Text(title).captionStyle(Palette.secondary)
+                Text(title).captionStyle(theme.secondary)
                 Text(detail)
                     .font(.system(size: 13))
-                    .foregroundStyle(Palette.tertiary)
+                    .foregroundStyle(theme.tertiary)
                     .lineSpacing(2)
                 content
                     .padding(.top, 2)

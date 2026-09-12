@@ -16,6 +16,10 @@ final class Instrument {
     private(set) var track = AltitudeTrack()
     private(set) var topSpeed: Double = 0
 
+    /// A trip is the one state in which the sensors outlive the screen.
+    private(set) var tripActive = false
+    private(set) var tripStartedAt: Date?
+
     /// Distance travelled, integrated from ground speed rather than from fixes —
     /// it stays honest when the GPS position jitters while you stand still.
     private(set) var distance: Double = 0
@@ -114,7 +118,6 @@ final class Instrument {
 
     func start() {
         sensors.start()
-        UIApplication.shared.isIdleTimerDisabled = settings.keepScreenAwake
 
         timer?.invalidate()
         // 2 Hz keeps the readouts feeling live without redrawing the trace more
@@ -132,7 +135,44 @@ final class Instrument {
         timer?.invalidate()
         timer = nil
         lastTick = nil
-        UIApplication.shared.isIdleTimerDisabled = false
+    }
+
+    func startTrip() {
+        guard !tripActive else { return }
+        resetTrip()
+        tripActive = true
+        tripStartedAt = Date()
+        sensors.setBackgroundUpdates(true)
+        start()
+    }
+
+    func endTrip() {
+        guard tripActive else { return }
+        tripActive = false
+        tripStartedAt = nil
+        sensors.setBackgroundUpdates(false)
+    }
+
+    /// Everything the other surfaces show, taken at this instant.
+    var snapshot: Snapshot {
+        Snapshot(
+            barometricAltitude: barometricAltitude,
+            gpsAltitude: sensors.gpsAltitude,
+            pressure: sensors.stationPressure,
+            verticalSpeed: verticalSpeed,
+            speed: sensors.groundSpeed,
+            ascent: track.ascent,
+            descent: track.descent,
+            distance: distance,
+            altitudeUnit: settings.altitudeUnit,
+            speedUnit: settings.speedUnit,
+            pressureUnit: settings.pressureUnit,
+            altitudeSource: settings.altitudeSource,
+            referencePressure: settings.referencePressure,
+            calibratedAt: settings.calibratedAt,
+            tripActive: tripActive,
+            timestamp: Date()
+        )
     }
 
     private func tick() {

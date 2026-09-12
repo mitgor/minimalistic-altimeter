@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(\.theme) private var theme
     let instrument: Instrument
     @Environment(\.dismiss) private var dismiss
     @State private var confirmingReset = false
@@ -34,7 +35,7 @@ struct SettingsView: View {
                         .font(.system(size: 13))
                         // Tertiary is calibrated against pure black; on the
                         // Form's raised rows it drops below readable.
-                        .foregroundStyle(Palette.secondary)
+                        .foregroundStyle(theme.secondary)
                 } header: {
                     Text("Primary source")
                 } footer: {
@@ -46,6 +47,9 @@ struct SettingsView: View {
                 }
 
                 Section("Display") {
+                    Picker("Theme", selection: $settings.theme) {
+                        ForEach(AppTheme.allCases) { Text($0.name).tag($0) }
+                    }
                     Toggle("Keep screen awake", isOn: $settings.keepScreenAwake)
                         .onChange(of: settings.keepScreenAwake) { _, awake in
                             UIApplication.shared.isIdleTimerDisabled = awake
@@ -68,13 +72,13 @@ struct SettingsView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .background(Palette.background)
+            .background(theme.background)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
-                        .foregroundStyle(Palette.accent)
+                        .foregroundStyle(theme.accent)
                 }
             }
             .confirmationDialog("Reset trip?", isPresented: $confirmingReset, titleVisibility: .visible) {
@@ -84,8 +88,8 @@ struct SettingsView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
-        .tint(Palette.accent)
+        .preferredColorScheme(theme.colorScheme)
+        .tint(theme.accent)
     }
 
     private var authorizationText: String {
