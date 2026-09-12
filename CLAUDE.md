@@ -162,6 +162,13 @@ xcodebuild -exportArchive -archivePath /tmp/MA.xcarchive \
 
 `ExportOptions.plist` has `destination: upload`, so export *is* the upload.
 **Bump `CURRENT_PROJECT_VERSION` first** — Apple refuses a repeated build number.
+Once a `MARKETING_VERSION` has been approved on the App Store that train is
+closed: bump it (1.0 → 1.1) or the upload fails with error 90186. Keep the
+three targets' versions identical; Apple checks they match.
+
+With Xcode signed in to the team, neither the API key nor the two
+`-authenticationKey*` flags are needed: `-allowProvisioningUpdates` alone
+signs and uploads.
 
 ### Setting up a new machine
 
