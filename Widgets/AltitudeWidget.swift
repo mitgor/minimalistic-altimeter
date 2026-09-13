@@ -66,9 +66,7 @@ struct AltitudeWidgetView: View {
                     if snapshot.tripActive {
                         Circle().fill(widgetTheme.ascending).frame(width: 5, height: 5)
                     }
-                    Text("as of ")
-                    + Text(snapshot.timestamp, style: .relative)
-                    + Text(" ago")
+                    Text("as of \(Text(snapshot.timestamp, style: .relative)) ago")
                 }
                 .font(widgetTheme.caption)
                 .foregroundStyle(widgetTheme.tertiary)

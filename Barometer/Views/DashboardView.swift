@@ -164,7 +164,7 @@ struct DashboardView: View {
             : instrument.sensors.gpsAltitude
 
         return Readout(
-            caption: source.label,
+            caption: LocalizedStringKey(source.label),
             value: metres.map { Format.number(settings.altitudeUnit.convert($0)) },
             unit: settings.altitudeUnit.symbol,
             placeholder: placeholder(for: source),
@@ -178,7 +178,7 @@ struct DashboardView: View {
         .accessibilityHint(isPrimary ? "Drives the trace and trip totals" : "Tap to make primary")
     }
 
-    private func placeholder(for source: AltitudeSource) -> String {
+    private func placeholder(for source: AltitudeSource) -> LocalizedStringKey {
         switch source {
         case .barometric:
             return instrument.sensors.barometerAvailable ? "Waiting" : "No sensor"

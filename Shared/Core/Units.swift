@@ -5,7 +5,7 @@ enum AltitudeUnit: String, CaseIterable, Identifiable, Sendable, Codable {
 
     var id: String { rawValue }
     var symbol: String { self == .metres ? "m" : "ft" }
-    var name: String { self == .metres ? "Metres" : "Feet" }
+    var name: String { String(localized: self == .metres ? "Metres" : "Feet") }
 
     /// Converts metres — the unit everything is stored in — for display.
     func convert(_ metres: Double) -> Double {
@@ -34,10 +34,10 @@ enum SpeedUnit: String, CaseIterable, Identifiable, Sendable, Codable {
 
     var name: String {
         switch self {
-        case .kmh: "Kilometres per hour"
-        case .mph: "Miles per hour"
-        case .knots: "Knots"
-        case .ms: "Metres per second"
+        case .kmh: String(localized: "Kilometres per hour")
+        case .mph: String(localized: "Miles per hour")
+        case .knots: String(localized: "Knots")
+        case .ms: String(localized: "Metres per second")
         }
     }
 
@@ -67,9 +67,9 @@ enum PressureUnit: String, CaseIterable, Identifiable, Sendable, Codable {
 
     var name: String {
         switch self {
-        case .hPa: "Hectopascals"
-        case .inHg: "Inches of mercury"
-        case .mmHg: "Millimetres of mercury"
+        case .hPa: String(localized: "Hectopascals")
+        case .inHg: String(localized: "Inches of mercury")
+        case .mmHg: String(localized: "Millimetres of mercury")
         }
     }
 

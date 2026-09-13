@@ -24,7 +24,7 @@ struct WatchDashboardView: View {
 
         return VStack(alignment: .leading, spacing: 10) {
             Readout(
-                caption: primary.label,
+                caption: LocalizedStringKey(primary.label),
                 value: snapshot.altitudeText(altitude(snapshot, primary)),
                 unit: unit.symbol,
                 placeholder: "No reading",
@@ -35,7 +35,7 @@ struct WatchDashboardView: View {
 
             HStack(spacing: 6) {
                 Text(secondary.label).captionStyle()
-                Text(snapshot.altitudeText(altitude(snapshot, secondary)).map { "\($0) \(unit.symbol)" } ?? "No reading")
+                Text(snapshot.altitudeText(altitude(snapshot, secondary)).map { "\($0) \(unit.symbol)" } ?? String(localized: "No reading"))
                     .font(theme.detail)
                     .foregroundStyle(theme.secondary)
                 Spacer()
@@ -53,7 +53,7 @@ struct WatchDashboardView: View {
                 StatCell(label: "Descent", value: snapshot.descentText)
             }
             HStack(spacing: 0) {
-                StatCell(label: "Speed", value: snapshot.speedText.map { "\($0) \(snapshot.speedUnit.symbol)" } ?? "No fix")
+                StatCell(label: "Speed", value: snapshot.speedText.map { "\($0) \(snapshot.speedUnit.symbol)" } ?? String(localized: "No fix"))
                 StatCell(label: "Distance", value: snapshot.distanceText)
             }
 
@@ -76,7 +76,7 @@ struct WatchDashboardView: View {
             case .wrist:
                 Text("On wrist")
             case .phone:
-                Text("From iPhone, ") + Text(snapshot.timestamp, style: .relative) + Text(" ago")
+                Text("From iPhone, \(Text(snapshot.timestamp, style: .relative)) ago")
             }
         }
         .font(theme.caption)

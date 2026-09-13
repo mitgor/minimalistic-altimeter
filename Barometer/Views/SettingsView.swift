@@ -63,7 +63,7 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    LabeledContent("Barometer", value: instrument.sensors.barometerAvailable ? "Available" : "Not available")
+                    LabeledContent("Barometer", value: String(localized: instrument.sensors.barometerAvailable ? "Available" : "Not available"))
                     LabeledContent("Location", value: authorizationText)
                 } header: {
                     Text("Sensors")
@@ -94,10 +94,10 @@ struct SettingsView: View {
 
     private var authorizationText: String {
         switch instrument.sensors.authorization {
-        case .authorizedAlways, .authorizedWhenInUse: "Allowed"
-        case .denied: "Denied"
-        case .restricted: "Restricted"
-        default: "Not requested"
+        case .authorizedAlways, .authorizedWhenInUse: String(localized: "Allowed")
+        case .denied: String(localized: "Denied")
+        case .restricted: String(localized: "Restricted")
+        default: String(localized: "Not requested")
         }
     }
 }

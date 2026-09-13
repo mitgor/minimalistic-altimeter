@@ -62,10 +62,10 @@ enum AppTheme: String, CaseIterable, Identifiable, Sendable {
 
     var name: String {
         switch self {
-        case .glass: "Glass"
-        case .phosphor: "Phosphor"
-        case .paper: "Paper"
-        case .lcd: "LCD"
+        case .glass: String(localized: "Glass")
+        case .phosphor: String(localized: "Phosphor")
+        case .paper: String(localized: "Paper")
+        case .lcd: String(localized: "LCD")
         }
     }
 

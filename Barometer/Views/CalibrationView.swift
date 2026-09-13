@@ -76,7 +76,7 @@ struct CalibrationView: View {
         }
     }
 
-    private var calibrationAge: String {
+    private var calibrationAge: LocalizedStringKey {
         guard let calibratedAt = settings.calibratedAt else {
             return "Never calibrated — showing standard-atmosphere altitude"
         }
@@ -115,7 +115,7 @@ struct CalibrationView: View {
         }
     }
 
-    private var gpsDetail: String {
+    private var gpsDetail: LocalizedStringKey {
         guard let gpsAltitude = instrument.sensors.gpsAltitude else {
             return "Waiting for a fix. This needs a clear view of the sky."
         }
@@ -232,8 +232,8 @@ struct CalibrationView: View {
     /// space, and a border around each would double the visual noise.
     private struct Card<Content: View>: View {
         @Environment(\.theme) private var theme
-        let title: String
-        let detail: String
+        let title: LocalizedStringKey
+        let detail: LocalizedStringKey
         @ViewBuilder let content: Content
 
         var body: some View {

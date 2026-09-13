@@ -7,13 +7,13 @@ import SwiftUI
 /// at this on a handlebar or a summit.
 struct Readout: View {
     @Environment(\.theme) private var theme
-    let caption: String
+    let caption: LocalizedStringKey
     let value: String?
     let unit: String
     /// Shown in place of the numerals, saying what is missing rather than
     /// standing in for it. A dash at this size is a slab, and reads as
     /// redacted or half-loaded.
-    var placeholder: String
+    var placeholder: LocalizedStringKey
     var size: CGFloat = 76
     var tint: Color? = nil
     var captionTint: Color? = nil
@@ -61,7 +61,7 @@ struct Readout: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(caption)
-        .accessibilityValue(value.map { "\($0) \(unit)" } ?? placeholder)
+        .accessibilityValue(value.map { Text("\($0) \(unit)") } ?? Text(placeholder))
     }
 }
 
@@ -229,14 +229,14 @@ struct FixBars: View {
         }
         .animation(.easeOut(duration: 0.3), value: quality)
         .accessibilityLabel("Signal")
-        .accessibilityValue("\(quality) of 3")
+        .accessibilityValue(Text("\(quality) of 3"))
     }
 }
 
 /// The tappable source badge. Also the app's one piece of colour when live.
 struct SourcePill: View {
     @Environment(\.theme) private var theme
-    let label: String
+    let label: LocalizedStringKey
     var isLive: Bool
     var isWarning = false
 
@@ -265,7 +265,7 @@ struct SourcePill: View {
 /// One cell of the bottom strip: a small figure with its name under it.
 struct StatCell: View {
     @Environment(\.theme) private var theme
-    let label: String
+    let label: LocalizedStringKey
     let value: String
 
     var body: some View {

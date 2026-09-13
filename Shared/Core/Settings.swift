@@ -7,14 +7,14 @@ enum AltitudeSource: String, CaseIterable, Identifiable, Sendable, Codable {
 
     var id: String { rawValue }
     var label: String { self == .barometric ? "BARO" : "GPS" }
-    var name: String { self == .barometric ? "Barometric" : "Satellite" }
+    var name: String { String(localized: self == .barometric ? "Barometric" : "Satellite") }
 
     var detail: String {
         switch self {
         case .barometric:
-            "Pressure sensor. Very responsive and precise, but drifts as the weather changes — calibrate it when you can."
+            String(localized: "Pressure sensor. Very responsive and precise, but drifts as the weather changes — calibrate it when you can.")
         case .satellite:
-            "GNSS fix. Stable over hours, but noisy minute to minute and unavailable indoors."
+            String(localized: "GNSS fix. Stable over hours, but noisy minute to minute and unavailable indoors.")
         }
     }
 }

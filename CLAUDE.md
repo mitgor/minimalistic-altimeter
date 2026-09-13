@@ -223,6 +223,31 @@ These each cost real time to rediscover:
   iOS 17 device has those screens. The island and lock-screen shots need a trip
   started by hand and the Live Activities prompt allowed on the lock screen.
 
+## Localization
+
+Twenty languages besides English, all in `Shared/Localizable.xcstrings` (one
+catalog, compiled into all three targets) plus `InfoPlist.xcstrings` in the
+app and watch folders for the permission prompts. Every UI string is a
+`LocalizedStringKey`; components take keys, not `String`, so a literal at a
+call site is localized and a computed value is not. Model-level names
+(`AltitudeUnit.name`, `AppTheme.name`, `AltitudeSource.detail`) go through
+`String(localized:)`.
+
+`xcodebuild build` does **not** update the catalog; extract new keys with
+
+```bash
+xcodebuild -exportLocalizations -project Barometer.xcodeproj \
+  -localizationPath /tmp/loc -exportLanguage en
+# then copy "/tmp/loc/en.xcloc/Source Contents/Shared/Localizable.xcstrings" back
+```
+
+Test a language without changing the Simulator: `xcrun simctl launch booted
+com.woodenshark.barometer -AppleLanguages "(ja)"`. Symbols (BARO, GPS, unit
+symbols, `± %@ %@`) are marked do-not-translate in the catalog.
+
+The App Store listing exists in the same 20 locales on version 1.1, pushed via
+the API; the English screenshots are reused for every locale.
+
 ## Conventions
 
 Comments explain *why*, never *what* — the code already says what. Match the

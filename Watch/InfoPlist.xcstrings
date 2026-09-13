@@ -1,0 +1,292 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "CFBundleDisplayName": {
+      "comment": "Bundle display name",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mini Altimeter"
+          }
+        }
+      }
+    },
+    "CFBundleName": {
+      "comment": "Bundle name",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mini Altimeter Watch"
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your location supplies GPS altitude and ground speed. Everything is computed on this device and nothing is ever uploaded."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Standort liefert GPS-Höhe und Geschwindigkeit über Grund. Alles wird auf diesem Gerät berechnet, nichts wird je hochgeladen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre position fournit l'altitude GPS et la vitesse au sol. Tout est calculé sur cet appareil et rien n'est jamais envoyé."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu ubicación aporta la altitud GPS y la velocidad sobre el terreno. Todo se calcula en este dispositivo y nunca se sube nada."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tua posizione fornisce la quota GPS e la velocità al suolo. Tutto viene calcolato su questo dispositivo e nulla viene mai caricato."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua localização fornece a altitude GPS e a velocidade no solo. Tudo é calculado neste aparelho e nada é enviado."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Геопозиция даёт высоту по GPS и путевую скорость. Всё вычисляется на этом устройстве, ничего никуда не отправляется."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Геопозиція дає висоту за GPS і шляхову швидкість. Усе обчислюється на цьому пристрої, нічого нікуди не надсилається."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置情報は GPS 高度と対地速度の取得に使われます。すべて端末内で計算され、何もアップロードされません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "위치 정보는 GPS 고도와 지상 속도를 제공합니다. 모든 계산은 이 기기에서 이루어지며 어떤 것도 업로드되지 않습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置信息用于提供 GPS 海拔和地面速度。所有计算都在本设备上完成，不会上传任何数据。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置資訊用於提供 GPS 海拔和地面速度。所有運算都在本裝置上完成，不會上傳任何資料。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokalizacja dostarcza wysokość GPS i prędkość nad ziemią. Wszystko jest liczone na tym urządzeniu i nic nie jest wysyłane."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je locatie levert de GPS-hoogte en de snelheid over de grond. Alles wordt op dit toestel berekend en er wordt nooit iets geüpload."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Din plats ger GPS-höjd och fart över marken. Allt beräknas på den här enheten och ingenting laddas någonsin upp."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konumunuz GPS yüksekliğini ve yer hızını sağlar. Her şey bu cihazda hesaplanır ve hiçbir şey asla yüklenmez."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يوفّر موقعك ارتفاع GPS والسرعة الأرضية. يُحسب كل شيء على هذا الجهاز ولا يُرفع أي شيء أبدًا."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपकी लोकेशन से GPS ऊँचाई और ज़मीनी गति मिलती है। सारी गणना इसी डिवाइस पर होती है और कुछ भी कभी अपलोड नहीं होता।"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokasi Anda memberikan ketinggian GPS dan kecepatan darat. Semuanya dihitung di perangkat ini dan tidak ada yang diunggah."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตำแหน่งของคุณใช้หาความสูงจาก GPS และความเร็วภาคพื้น ทุกอย่างคำนวณในเครื่องนี้และไม่มีการอัปโหลดใดๆ"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vị trí của bạn cung cấp độ cao GPS và tốc độ mặt đất. Mọi thứ được tính trên thiết bị này và không bao giờ tải lên đâu cả."
+          }
+        }
+      }
+    },
+    "NSMotionUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The pressure sensor is what makes the barometric altimeter work."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucksensor ist es, der den barometrischen Höhenmesser möglich macht."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le capteur de pression est ce qui fait fonctionner l'altimètre barométrique."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El sensor de presión es lo que hace funcionar el altímetro barométrico."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il sensore di pressione è ciò che fa funzionare l'altimetro barometrico."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O sensor de pressão é o que faz o altímetro barométrico funcionar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Барометрический альтиметр работает за счёт датчика давления."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Барометричний альтиметр працює завдяки сенсору тиску."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "気圧センサーが気圧高度計の動作に必要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기압 센서가 있어야 기압 고도계가 작동합니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "气压传感器是气压高度计得以工作的基础。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "氣壓感測器是氣壓高度計運作的基礎。"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barometryczny wysokościomierz działa dzięki czujnikowi ciśnienia."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De druksensor is wat de barometrische hoogtemeter laat werken."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trycksensorn är det som får den barometriska höjdmätaren att fungera."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barometrik altimetreyi çalıştıran şey basınç sensörüdür."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مستشعر الضغط هو ما يجعل مقياس الارتفاع البارومتري يعمل."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "दबाव सेंसर ही बैरोमीट्रिक अल्टीमीटर को चलाता है।"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensor tekanan adalah yang membuat altimeter barometrik bekerja."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เซ็นเซอร์ความดันคือสิ่งที่ทำให้เครื่องวัดความสูงแบบบารอมิเตอร์ทำงาน"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cảm biến áp suất là thứ làm cho máy đo độ cao khí áp hoạt động."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

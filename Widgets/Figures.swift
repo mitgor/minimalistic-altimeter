@@ -9,7 +9,7 @@ import SwiftUI
 let widgetTheme = Theme.glass
 
 struct Figure: View {
-    let caption: String
+    let caption: LocalizedStringKey
     let value: String?
     var unit = ""
     var size: CGFloat = 28
