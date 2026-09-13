@@ -84,6 +84,11 @@ iOS, an app extension (no `UIApplication.shared`) and watchOS.
 | `Shared/Design/Theme.swift` | The four themes (Glass, Phosphor, Paper, LCD) as `Theme` values in the environment. A theme is colours, typeface, trace renderer and cell chrome — never layout. |
 | `Shared/Design/Components.swift` | Readout, trace, cells. All read `@Environment(\\.theme)`. |
 | `Barometer/Views/` | Dashboard, calibration sheet, settings sheet. |
+| `Shared/Core/Trip.swift` | `Trip` (one sample a second: altitude, GPS altitude, speed, pressure — never coordinates), `TripSummary` (every derived figure, rates fitted over 10 s) and `ActivityClassifier` (rules). |
+| `Shared/Core/TripStore.swift` | One JSON file per trip in Application Support. `.preview` fabricates one trip of each activity. |
+| `Barometer/Trip/ActivityOracle.swift` | Second opinion from Apple's on-device model (iOS 26 + Apple Intelligence) on the same summary the rules see. Overrides only above 0.8 confidence and only while the label is still the app's guess. |
+| `Barometer/Views/TripsView.swift`, `TripDetailView.swift` | The trips sheet. The activity picks the figures shown and whether a speed profile is drawn. |
+| `Tools/classifier-check/main.swift` | Four synthetic tracks, one per activity; the classifier must name each. Run it after touching `TripSummary` or the rules. |
 | `Barometer/Trip/TripBroadcaster.swift` | Every 3 s: writes the snapshot, updates the Live Activity, nudges WidgetKit, sends to the watch. |
 | `Barometer/Trip/PhoneLink.swift` | `WCSession` sender. Application context only. |
 | `Widgets/` | `AltitudeWidget` (small/medium, last reading with its age) and `TripLiveActivity` (island + lock screen). Glass look only. |
@@ -125,6 +130,12 @@ location updates (the blue indicator), keeps the barometer alive through them,
 and starts the Live Activity. End trip stops all three. Outside a trip the
 sensors stop the moment the app leaves the screen, as before. This keeps the
 battery cost something the user chose.
+
+**Activity recognition is rules first.** Each activity has a physical tell no
+other shares: freefall at 25 m/s, sustained climbs at flying speed, road speed
+with little climb, walking pace. Rules can be read and argued with; the
+language model only ever sees the same summary, so it is a tie-breaker, not
+the judge. `Tools/classifier-check` is the contract.
 
 **The widget shows its age.** WidgetKit cannot be live, so the home-screen
 widget says "as of N min ago" with a relative-date `Text` that ticks without

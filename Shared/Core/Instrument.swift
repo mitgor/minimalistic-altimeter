@@ -19,6 +19,8 @@ final class Instrument {
     /// A trip is the one state in which the sensors outlive the screen.
     private(set) var tripActive = false
     private(set) var tripStartedAt: Date?
+    /// One sample a second while a trip runs; becomes the `Trip` on end.
+    @ObservationIgnored private var recording: [TripSample] = []
 
     /// Distance travelled, integrated from ground speed rather than from fixes —
     /// it stays honest when the GPS position jitters while you stand still.
@@ -146,11 +148,21 @@ final class Instrument {
         start()
     }
 
-    func endTrip() {
-        guard tripActive else { return }
+    /// Ends the trip and hands back what was recorded, already labelled with
+    /// the classifier's best guess. `nil` when it was too short to mean anything.
+    @discardableResult
+    func endTrip() -> Trip? {
+        guard tripActive, let startedAt = tripStartedAt else { return nil }
         tripActive = false
         tripStartedAt = nil
         sensors.setBackgroundUpdates(false)
+
+        let samples = recording
+        recording = []
+        guard samples.count >= 10 else { return nil }
+        var trip = Trip(startedAt: startedAt, endedAt: Date(), activity: .other, samples: samples)
+        trip.activity = ActivityClassifier.classify(TripSummary(trip))
+        return trip
     }
 
     /// Everything the other surfaces show, taken at this instant.
@@ -180,6 +192,17 @@ final class Instrument {
 
         if let altitude {
             track.record(altitude: altitude, at: now)
+        }
+
+        if tripActive, let startedAt = tripStartedAt,
+           recording.last.map({ now - startedAt.timeIntervalSinceReferenceDate - $0.t >= 1 }) ?? true {
+            recording.append(TripSample(
+                t: now - startedAt.timeIntervalSinceReferenceDate,
+                baro: barometricAltitude,
+                gps: sensors.gpsAltitude,
+                speed: sensors.groundSpeed,
+                pressure: sensors.stationPressure
+            ))
         }
 
         if let groundSpeed = sensors.groundSpeed {

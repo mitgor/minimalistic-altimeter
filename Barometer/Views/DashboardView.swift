@@ -9,9 +9,11 @@ import SwiftUI
 struct DashboardView: View {
     @Environment(\.theme) private var theme
     let instrument: Instrument
+    let trips: TripStore
 
     @State private var showingCalibration = false
     @State private var showingSettings = false
+    @State private var showingTrips = false
     @Environment(\.scenePhase) private var scenePhase
 
     private var settings: Settings { instrument.settings }
@@ -53,6 +55,9 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView(instrument: instrument)
+        }
+        .sheet(isPresented: $showingTrips) {
+            TripsView(store: trips, settings: settings)
         }
         .onAppear {
             instrument.start()
@@ -103,6 +108,17 @@ struct DashboardView: View {
             Spacer()
 
             FixBars(quality: instrument.sensors.fixQuality)
+
+            Button {
+                showingTrips = true
+            } label: {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(theme.secondary)
+                    .frame(width: 32, height: 32)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Trips")
 
             Button {
                 showingSettings = true
@@ -332,7 +348,18 @@ struct DashboardView: View {
 
     private func toggleTrip() {
         if instrument.tripActive {
-            instrument.endTrip()
+            if let trip = instrument.endTrip() {
+                trips.save(trip)
+                // The rules answered already; the model, where there is one,
+                // may improve on it — unless the user has picked by then.
+                Task {
+                    guard let better = await ActivityOracle.refine(trip), better != trip.activity,
+                          var current = trips.trips.first(where: { $0.id == trip.id }), current.activityWasDetected
+                    else { return }
+                    current.activity = better
+                    trips.save(current)
+                }
+            }
         } else {
             instrument.startTrip()
         }
@@ -351,7 +378,7 @@ struct DashboardView: View {
 
 #if DEBUG
 #Preview("Dashboard") {
-    DashboardView(instrument: .preview())
+    DashboardView(instrument: .preview(), trips: .preview)
 }
 
 #Preview("Uncalibrated, no fix") {
@@ -359,11 +386,12 @@ struct DashboardView: View {
         instrument: .preview(
             sensors: .preview(gpsAltitude: nil, speed: nil, course: nil),
             calibrated: false
-        )
+        ),
+        trips: .preview
     )
 }
 
 #Preview("No barometer") {
-    DashboardView(instrument: .preview(sensors: .preview(pressure: nil)))
+    DashboardView(instrument: .preview(sensors: .preview(pressure: nil)), trips: .preview)
 }
 #endif
