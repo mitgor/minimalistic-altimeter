@@ -180,9 +180,9 @@ gitignored). To work on distribution elsewhere:
    download it once, so otherwise generate a new one (Admin role if you need to
    manage testers).
 3. Put it in the repo root or `~/.appstoreconnect/private_keys/`, `chmod 600`.
-4. The **Key ID** and **Issuer ID** are on that same page. They are not secrets,
-   but they are not committed either — fetch them rather than hunting for them
-   in a file.
+4. The **Key ID** is in the key's filename (`AuthKey_<KeyID>.p8`). The
+   **Issuer ID** is on that same page, one per team; it is not on disk anywhere
+   and searching a machine for it wastes time — read it off the website.
 
 Signing needs no Xcode sign-in: `-allowProvisioningUpdates` with the API key
 mints the certificate and profile itself.
