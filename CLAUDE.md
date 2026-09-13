@@ -217,8 +217,11 @@ These each cost real time to rediscover:
   `distanceFilter = kCLDistanceFilterNone`, and `keepScreenAwake` defaults on. Fine
   for an instrument you are looking at; do not market the app as battery-light
   without changing this first.
-- Screenshots exist only for the 6.9" slot. 6.5"/6.1"/5.8"/4.7" would be nice;
-  3.5"/4.0"/5.5" are pointless because no iOS 17 device has those screens.
+- Screenshots exist for the 6.9" iPhone slot (iPhone 17 Pro Max simulator,
+  1320×2868) and the Series 10 watch slot (Series 11 46 mm simulator, 416×496).
+  6.5"/6.1"/5.8"/4.7" would be nice; 3.5"/4.0"/5.5" are pointless because no
+  iOS 17 device has those screens. The island and lock-screen shots need a trip
+  started by hand and the Live Activities prompt allowed on the lock screen.
 
 ## Conventions
 
