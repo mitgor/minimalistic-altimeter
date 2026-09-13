@@ -1,12 +1,16 @@
 # Mini Altimeter
 
-A minimal iOS altimeter. Barometric and GPS altitude side by side, ground speed
-from GNSS, on one screen, with no network at any point.
+A minimal altimeter for iPhone and Apple Watch. Barometric and GPS altitude side
+by side, ground speed from GNSS, on one screen, with no network at any point.
+Trips can be recorded and read back as statistics shaped to what you were doing.
+Live altitude in the Dynamic Island and on the lock screen, home-screen widgets,
+four looks, and twenty languages.
 
 ## Running it
 
-Open `Barometer.xcodeproj`, set your signing team on the target, and run.
-Deployment target is iOS 17.
+Open `Barometer.xcodeproj`, set your signing team on the three targets — the
+app, the widget extension and the watch app — and run the `Barometer` scheme.
+Deployment targets are iOS 17 and watchOS 10.
 
 The dashboard has `#Preview` blocks — calibrated, uncalibrated, and
 no-barometer — so the design can be judged in the canvas without a device.
@@ -49,6 +53,53 @@ from a stale reference, which runs about **8 m per hectopascal**. That is why th
 source pill turns amber after six hours: not because the sensor drifted, but
 because the weather did.
 
+## Trips
+
+**Start trip** on the dashboard turns on background location (the blue
+indicator), keeps the barometer alive through it, and starts a Live Activity:
+the current altitude in the Dynamic Island, and both altitudes with climb rate,
+ascent, descent and speed on the lock screen. **End trip** stops all of it.
+Outside a trip the sensors stop the moment the app leaves the screen, so the
+battery cost is always something you chose.
+
+Every trip is also recorded — one sample a second of barometric altitude, GPS
+altitude, speed and pressure, and nothing else. Open the history icon for the
+list; open a trip for its statistics. The **activity** decides which figures are
+shown and which profile is drawn:
+
+| Activity | Figures |
+|---|---|
+| Hiking | duration, moving time, distance, pace, ascent, descent, highest, lowest |
+| Motorcycle | duration, moving time, distance, max and average speed, ascent, highest, lowest, plus a speed profile |
+| Skydiving | exit altitude, deployment altitude, freefall time, max sink, landing altitude, total descent |
+| Soaring | flight time, highest, height gained, thermals, max climb, max sink, distance, glide ratio |
+
+The activity is **recognised from the track**. Each one has a physical tell no
+other shares — freefall at 25 m/s, sustained climbs at flying speed, road speed
+with little climb, walking pace — so the rules are short and can be argued with;
+`Tools/classifier-check` holds four synthetic tracks they must name. On iOS 26
+with Apple Intelligence, the on-device model is asked for a second opinion on
+the same summary and overrides only when confident, and only until you pick the
+activity yourself.
+
+## Widgets and watch
+
+Home-screen widgets show the last altitude, pressure, ascent and speed, and say
+how long ago the reading was taken — WidgetKit cannot be live, so the widget is
+honest about its age instead.
+
+The watch app runs as a complete altimeter on watches with a barometer, using
+the phone's calibration and units. On watches without one it mirrors the
+phone's readings over Watch Connectivity and says "From iPhone".
+
+## Looks
+
+Four themes, chosen in Settings: **Glass** (true black, lit numerals),
+**Phosphor** (a green terminal with a dot-matrix trace), **Paper** (ink on
+white) and **LCD** (a grey-green segment display with a bar trace). A theme is
+colour, typeface, trace renderer and cell chrome — never layout, so every number
+stays where you learned to find it.
+
 ## Design
 
 Researched against the current crop of instrument apps and Apple's own. What the
@@ -57,8 +108,8 @@ good ones agree on, and what this follows:
 - **One focal point per metric, and as few metrics as possible.** Altitude and
   speed are the two heroes. Everything else is either a thin strip at the bottom
   or in a sheet.
-- **True black.** Free on OLED, and it makes the readouts read as lit rather than
-  printed.
+- **True black** in the default look. Free on OLED, and it makes the readouts
+  read as lit rather than printed.
 - **Monospaced digits, always.** Proportional numerals shift sideways as they
   change, which makes an instrument look unsteady.
 - **Left-aligned heroes.** A flush-left column scans in one downward movement,
@@ -104,16 +155,26 @@ source's own error bar takes its place.
 
 ## Structure
 
+`Shared/` is compiled into all three targets.
+
 | | |
 |---|---|
-| `Core/Atmosphere.swift` | ISA conversions. Pure functions, no state. |
-| `Core/SensorEngine.swift` | `CMAltimeter` + `CLLocationManager`. Publishes raw readings only. |
-| `Core/AltitudeTrack.swift` | Rolling 15-minute window. Backs the trace, vertical speed, and ascent totals from one array so they cannot disagree. |
-| `Core/Instrument.swift` | Folds sensors and preferences into the numbers shown. |
-| `Core/Settings.swift` | Preferences, mirrored to `UserDefaults`. |
-| `Design/` | Palette, type scale, and the readout components. |
-| `Views/` | Dashboard, calibration, settings. |
+| `Shared/Core/Atmosphere.swift` | ISA conversions. Pure functions, no state. |
+| `Shared/Core/SensorEngine.swift` | `CMAltimeter` + `CLLocationManager`. Publishes raw readings only. |
+| `Shared/Core/AltitudeTrack.swift` | Rolling 15-minute window. Backs the trace, vertical speed, and ascent totals from one array so they cannot disagree. |
+| `Shared/Core/Instrument.swift` | Folds sensors and preferences into the numbers shown. Owns the trip lifecycle and recording. |
+| `Shared/Core/Trip.swift` | `Trip`, `TripSummary` (every derived figure) and the rule-based `ActivityClassifier`. |
+| `Shared/Core/TripStore.swift` | One JSON file per trip in Application Support. |
+| `Shared/Core/Snapshot.swift` | The readings flattened for the Live Activity, widgets and watch. |
+| `Shared/Core/Settings.swift` | Preferences, mirrored to `UserDefaults`. |
+| `Shared/Design/` | The four themes, type scale, and the readout components. |
+| `Shared/Localizable.xcstrings` | Every UI string, in 21 languages. |
+| `Barometer/Views/` | Dashboard, calibration, settings, trips. |
+| `Barometer/Trip/` | Live Activity and widget publishing, the watch link, the on-device model hook. |
+| `Widgets/` | Home-screen widget and the Live Activity. |
+| `Watch/` | The watch app. |
 | `Tools/MakeIcon.swift` | Draws the app icon. Run it to regenerate rather than editing the PNG. |
+| `Tools/classifier-check/` | The activity classifier's contract. |
 
 Vertical speed is fitted by least squares over the last 8 seconds rather than
 differenced between two samples — a single noisy reading would otherwise swing
@@ -137,7 +198,19 @@ a point instead of rounded bars, and a length ratio between them far wider than
 an hour and minute hand. The numerals and the warning hatching on a real
 instrument are left out — they turn to mush at tile size.
 
+## Languages
+
+English plus German, French, Spanish, Italian, Japanese, Korean, Simplified and
+Traditional Chinese, Brazilian Portuguese, Russian, Ukrainian, Polish, Dutch,
+Swedish, Turkish, Arabic, Hindi, Indonesian, Thai and Vietnamese, following the
+iPhone's language setting. Sensor names and unit symbols are left as they are.
+
 ## Privacy
 
 No networking code, no analytics, no third-party dependencies. Location and
-motion are read on-device and never persisted beyond the in-memory trace.
+motion are read on-device. Recorded trips are stored on the phone only and hold
+altitude, speed and pressure — never coordinates. See [PRIVACY.md](PRIVACY.md).
+
+## Support
+
+support@woodenshark.com
